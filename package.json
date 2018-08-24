@@ -1,0 +1,40 @@
+{
+  "name": "automatic-wol",
+  "version": "1.0.0",
+  "description": "Automatic WOL Clicker",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.blending.kr/jungin500/automatic-wol"
+  },
+  "keywords": [
+    "wol",
+    "iptime",
+    "easywol"
+  ],
+  "author": "안정인 (StabLiZationIn)",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-basic-auth": "^1.1.5",
+    "express-error-handler": "^1.1.0",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "jquery": "^3.3.1",
+    "jsdom": "^11.11.0",
+    "md5": "^2.2.1",
+    "mongoose": "^5.1.6",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "path": "^0.12.7",
+    "semantic-ui": "^2.3.2",
+    "serve-static": "^1.13.2",
+    "urlencode": "^1.1.0",
+    "winston": "^3.0.0"
+  }
+}

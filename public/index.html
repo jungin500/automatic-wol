@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>AutomaticWOL by StabLiZationIn</title>
+    <style>
+        #main {
+            margin: auto;
+        }
+        
+        div.column {
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui middle aligned two column grid" id="main">
+        <div class="column">
+            <div class="ui raised segment">
+                <a class="ui red ribbon label">checkStatus</a>
+                <span>On-line status checker</span>
+                <p></p>
+                <table class="ui celled table">
+                    <thead>
+                        <tr>
+                            <th>PORT#</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="tr-port-1">
+                            <td>1</td>
+                            <td></td>
+                        </tr>
+                        <tr id="tr-port-2">
+                            <td>2</td>
+                            <td></td>
+                        </tr>
+                        <tr id="tr-port-3">
+                            <td>3</td>
+                            <td></td>
+                        </tr>
+                        <tr id="tr-port-4">
+                            <td>4</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="fluid ui green icon button" id="btn-status">
+                    <i class="sign in alternate icon"></i>
+                    Check Status
+                </button>
+                <p></p>
+                <a class="ui red ribbon label">processWOL</a>
+                <span>Automatic WOL Packet Generator</span>
+                <p></p>
+                <button class="fluid ui primary icon button" id="btn-boot">
+                    <i class="power off icon"></i>
+                    Boot Up system
+                </button>
+                <p></p>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" type="text/css" href="dist/semantic.min.css">
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="dist/semantic.min.js"></script>
+    <script>
+        /* global $ */
+        var repeatId;
+        
+        function doQueryStatusfunction(event) {
+            $('#btn-status').addClass('loading');
+            
+            $.get('/process/checkStatus', (data) => {
+                data = (typeof data == 'object')? data : JSON.parse(data);
+                
+                var resultType = data.result;
+                var resultSpeedSet = data.data;
+                var resultTxt = '';
+                
+                if(resultSpeedSet == 'EHOSTUNREACH')
+                    resultSpeedSet += ': 연결이 불가능합니다'
+                
+                if(resultType != 'success') {
+                    $('#btn-status').removeClass('loading').removeClass('primary').addClass('red').text(resultSpeedSet);
+                    clearInterval(repeatId);
+                    return;
+                }
+                
+                for(var i = 0; i < 4; i++) {
+                    $('#tr-port-' + (i + 1)).removeClass();
+                    
+                    if(resultSpeedSet[i] == 'NoDevice') {
+                        resultTxt += '<i class="icon unlink"></i>';
+                        $('#tr-port-' + (i + 1)).addClass('disabled');
+                    } else if(resultSpeedSet[i] == 'PowerOn') {
+                        resultTxt += '<i class="icon checkmark"></i>';
+                        $('#tr-port-' + (i + 1)).addClass('positive');
+                    } else if(resultSpeedSet[i] == 'PowerOff') {
+                        resultTxt += '<i class="icon power off"></i>';
+                        $('#tr-port-' + (i + 1)).addClass('negative');
+                    }
+                    
+                    $('#tr-port-' + (i + 1) + ' > td:nth-child(2)').html(resultTxt + resultSpeedSet[i]);
+                    
+                    resultTxt = '';
+                }
+
+                $('#btn-status').removeClass('loading').text('Success. automatically updating...');
+            });
+        }
+    
+        $('#btn-status').on('click', function() {
+            clearInterval(repeatId); // previous interval; if exist.
+            doQueryStatusfunction();
+            repeatId = setInterval(doQueryStatusfunction, 5000);
+        });
+        
+        $('#btn-boot').on('click', function(event) {
+            $(event.target).addClass('loading');
+            
+            $.post('/process/processWOL', (data) => {
+                data = (typeof data == 'object')? data : JSON.parse(data);
+                
+                if(data.result == 'success')
+                    $(event.target).removeClass('loading').text('Success');
+                else
+                    $(event.target).removeClass('loading').removeClass('primary').addClass('red').text('Failed');
+            });
+        });
+        
+    </script>
+</body>
+
+</html>
